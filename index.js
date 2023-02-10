@@ -1,37 +1,44 @@
 const userBirthday = document.querySelector(".user-birthday");
 const submitButton = document.querySelector(".submit-button");
 const outputMessage = document.querySelector(".output-message");
+const nextPalindromeMessage = document.querySelector(
+  ".next-palindrome-message"
+);
 
 submitButton.addEventListener("click", checkPalindrome);
 
 function checkPalindrome() {
   const birthDay = userBirthday.value.split("-"); // an array of birthday year, month , date
   var isPalindrome = checkPalindromeForAllFormats(birthDay);
-  let nextD = nextDate(birthDay);
-  let currentDay = nextD;
 
   if (isPalindrome === true) {
     outputMessage.innerText = "Is a palindrome";
   } else {
-    while (checkPalindromeForAllFormats(currentDay) === false) {
-      currentDay = nextDate(nextD);
-
-      if (checkPalindromeForAllFormats(currentDay) === true) {
-        outputMessage.innerText =
-          "Is not a palindrome, next Palindrome birthday is on" + currentDay;
-      }
-    }
+    outputMessage.innerText = "Is not a palindrome";
   }
+  var getNextPalindrome = getNextPalindromeDate(birthDay);
+  let nextPalindromeDate = getNextPalindrome.date;
+  let nextPalindromeCount = getNextPalindrome.delay;
+  nextPalindromeMessage.innerText =
+    "Next Palindrome Date: " +
+    nextPalindromeDate[2] +
+    "-" +
+    nextPalindromeDate[1] +
+    "-" +
+    nextPalindromeDate[0] +
+    " You missed it by: " +
+    nextPalindromeCount +
+    " days";
 
   // console.log(typeof birthDay.join(""));
   // console.log(typeof nextD);
 
-  if (isLeapYear(birthDay) === true) {
-    console.log("Is leap year");
-    console.log(isLeapYear(birthDay));
-  } else {
-    console.log("Not a leap year");
-  }
+  // if (isLeapYear(birthDay) === true) {
+  //   console.log("Is leap year");
+  //   console.log(isLeapYear(birthDay));
+  // } else {
+  //   console.log("Not a leap year");
+  // }
 }
 
 //a function to reverse the birthday
@@ -82,6 +89,29 @@ function isLeapYear(birthDay) {
   }
 }
 
+function addZeroInDateAndMonth(date, month) {
+  //if date<10 "0"+ date.toString(10)
+  let stringDate = "0";
+  let stringMonth = "0";
+  if (date < 10) {
+    stringDate = "0" + date.toString(10);
+  } else {
+    stringDate = date.toString(10);
+  }
+
+  //if month<10 "0"+ month.toString(10)
+  if (month < 10) {
+    stringMonth = "0" + month.toString(10);
+  } else {
+    stringMonth = month.toString(10);
+  }
+  // return stringDate, stringMonth; wrong way to return two values from a function
+  return {
+    date: stringDate,
+    month: stringMonth,
+  };
+}
+
 function nextDate(birthDay) {
   let date = Number(birthDay[2]); //01
   let month = Number(birthDay[1]); //02
@@ -114,31 +144,32 @@ function nextDate(birthDay) {
   //for all normal date=date+1
 
   const stringDateMonth = addZeroInDateAndMonth(date, month);
-  date = stringDateMonth.date;
-  month = stringDateMonth.month;
-  nextDay = year.toString(10) + month + date;
-  return nextDay; // in string type
-}
-
-function addZeroInDateAndMonth(date, month) {
-  //if date<10 "0"+ date.toString(10)
-  let stringDate = "0";
-  let stringMonth = "0";
-  if (date < 10) {
-    stringDate = "0" + date.toString(10);
-  } else {
-    stringDate = date.toString(10);
-  }
-
-  //if month<10 "0"+ month.toString(10)
-  if (month < 10) {
-    stringMonth = "0" + month.toString(10);
-  } else {
-    stringMonth = month.toString(10);
-  }
-  // return stringDate, stringMonth; wrong way to return two values from a function
+  // nextDay = year.toString(10) + month + date;
+  // return nextDay; // in string type
   return {
-    date: stringDate,
-    month: stringMonth,
+    date: stringDateMonth.date,
+    month: stringDateMonth.month,
+    year: year.toString(10),
   };
+}
+function getNextPalindromeDate(birthDay) {
+  let count = 0;
+  let nextD = nextDate(birthDay);
+  let currentDay = [nextD.year, nextD.month, nextD.date];
+  var isPalindrome = checkPalindromeForAllFormats(currentDay);
+  while (isPalindrome === false) {
+    if (isPalindrome === true) {
+      count = count + 1;
+      break;
+    } else {
+      currentDay = [
+        nextDate(currentDay).year,
+        nextDate(currentDay).month,
+        nextDate(currentDay).date,
+      ];
+      count++;
+      var isPalindrome = checkPalindromeForAllFormats(currentDay);
+    }
+  }
+  return { date: currentDay, delay: count };
 }
